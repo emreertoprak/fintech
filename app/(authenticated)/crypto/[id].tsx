@@ -21,6 +21,8 @@ import { Circle, useFont } from '@shopify/react-native-skia';
 import { format } from 'date-fns';
 import * as Haptics from 'expo-haptics';
 import Animated, { SharedValue, useAnimatedProps } from 'react-native-reanimated';
+import BuyModal from './BuyModal';
+import { useBalanceStore } from '@/store/balanceStore';
 
 Animated.addWhitelistedNativeProps({ text: true });
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
@@ -35,6 +37,8 @@ const Page = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const font = useFont(require('@/assets/fonts/SpaceMono-Regular.ttf'), 12);
   const { state, isActive } = useChartPressState({ x: 0, y: { price: 0 } });
+  const { balance, runTransaction } = useBalanceStore();
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
     console.log(isActive);
@@ -48,6 +52,7 @@ const Page = () => {
       return info[+id];
     },
   });
+
 
   const { data: tickers } = useQuery({
     queryKey: ['tickers'],
@@ -68,6 +73,23 @@ const Page = () => {
       defaultValue: '',
     };
   });
+
+  const handleBuy = (amount) => {
+    const price = tickers[tickers.length - 1].price;
+    const totalCost = amount * price;
+console.log(totalCost,balance())
+    if (totalCost <= balance()) {
+      runTransaction({
+        id: Math.random().toString(),
+        amount: -totalCost,
+        date: new Date(),
+        title: `Bought ${amount} ${data.symbol}`,
+      });
+      setIsModalVisible(false);
+    } else {
+      alert('Insufficient balance');
+    }
+  };
 
   return (
     <>
@@ -123,7 +145,9 @@ const Page = () => {
                 style={[
                   defaultStyles.pillButtonSmall,
                   { backgroundColor: Colors.primary, flexDirection: 'row', gap: 16 },
-                ]}>
+                ]}
+                onPress={() => setIsModalVisible(true)}
+                >
                 <Ionicons name="add" size={24} color={'#fff'} />
                 <Text style={[defaultStyles.buttonText, { color: '#fff' }]}>Buy</Text>
               </TouchableOpacity>
@@ -200,6 +224,11 @@ const Page = () => {
             </View>
           </>
         )}></SectionList>
+         <BuyModal 
+        visible={isModalVisible} 
+        onClose={() => setIsModalVisible(false)} 
+        onConfirm={handleBuy} 
+      />
     </>
   );
 };

@@ -1,13 +1,21 @@
-import Colors from '@/constants/Colors';
-import { Ionicons } from '@expo/vector-icons';
-import { View, Text, StyleSheet } from 'react-native';
-import { TextInput, TouchableOpacity } from 'react-native-gesture-handler';
+import React from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
 import { Link } from 'expo-router';
+import RNPickerSelect from 'react-native-picker-select';
+import Colors from '@/constants/Colors';
+import { Ionicons } from '@expo/vector-icons';
+import { useBalanceStore } from '@/store/balanceStore';
 
 const CustomHeader = () => {
   const { top } = useSafeAreaInsets();
+  const { switchProfile, currentProfile } = useBalanceStore();
+
+  const items = [
+    { label: 'Turkey', value: 'TR', key: 'TR' },
+    { label: 'Azerbaijan', value: 'AZ', key: 'AZ' }
+  ];
 
   return (
     <BlurView intensity={80} tint={'extraLight'} style={{ paddingTop: top }}>
@@ -23,15 +31,8 @@ const CustomHeader = () => {
         ]}>
         <Link href={'/(authenticated)/(modals)/account'} asChild>
           <TouchableOpacity
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 20,
-              backgroundColor: Colors.gray,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <Text style={{ color: '#fff', fontWeight: '500', fontSize: 16 }}>SG</Text>
+            style={styles.profileButton}>
+            <Text style={{ color: '#fff', fontWeight: '500', fontSize: 16 }}>YEE</Text>
           </TouchableOpacity>
         </Link>
         <View style={styles.searchSection}>
@@ -41,9 +42,26 @@ const CustomHeader = () => {
         <View style={styles.circle}>
           <Ionicons name={'stats-chart'} size={20} color={Colors.dark} />
         </View>
-        <View style={styles.circle}>
-          <Ionicons name={'card'} size={20} color={Colors.dark} />
-        </View>
+        <TouchableOpacity style={styles.circle} onPress={() => this.picker.togglePicker()}>
+          <Image
+            source={
+              currentProfile === 'TR'
+                ? require('@/assets/flags/tr.png')
+                : require('@/assets/flags/az.png')
+            }
+            style={styles.flag}
+          />
+        </TouchableOpacity>
+        <RNPickerSelect
+          ref={(el) => { this.picker = el; }}
+          onValueChange={(value) => switchProfile(value)}
+          items={items}
+          placeholder={{}}
+          value={currentProfile}
+          style={pickerSelectStyles}
+          useNativeAndroidPickerStyle={false}
+          textInputProps={{ underlineColorAndroid: 'transparent' }}
+        />
       </View>
     </BlurView>
   );
@@ -55,9 +73,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  btn: {
-    padding: 10,
+  profileButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: Colors.gray,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   searchSection: {
     flex: 1,
@@ -88,5 +110,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  flag: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+  },
 });
+
+const pickerSelectStyles = StyleSheet.create({
+  inputIOS: {
+    display: 'none', // Input alanını gizle
+  },
+  inputAndroid: {
+    display: 'none', // Input alanını gizle
+  },
+});
+
 export default CustomHeader;

@@ -1,3 +1,6 @@
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { useHeaderHeight } from '@react-navigation/elements';
 import Dropdown from '@/components/Dropdown';
 import RoundBtn from '@/components/RoundBtn';
 import WidgetList from '@/components/SortableList/WidgetList';
@@ -5,21 +8,21 @@ import Colors from '@/constants/Colors';
 import { defaultStyles } from '@/constants/Styles';
 import { useBalanceStore } from '@/store/balanceStore';
 import { Ionicons } from '@expo/vector-icons';
-import { View, Text, ScrollView, StyleSheet, Button, TouchableOpacity } from 'react-native';
-import { useHeaderHeight } from '@react-navigation/elements';
 
 const Page = () => {
-  const { balance, runTransaction, transactions, clearTransactions } = useBalanceStore();
+  const { balance, runTransaction, profiles, currentProfile, clearTransactions } = useBalanceStore();
   const headerHeight = useHeaderHeight();
 
   const onAddMoney = () => {
     runTransaction({
       id: Math.random().toString(),
-      amount: Math.floor(Math.random() * 1000) * (Math.random() > 0.5 ? 1 : -1),
+      amount: 1630, // Her basıldığında 100000 ekleyecek
       date: new Date(),
       title: 'Added money',
     });
   };
+
+  const transactions = profiles[currentProfile]?.transactions || [];
 
   return (
     <ScrollView
@@ -29,8 +32,8 @@ const Page = () => {
       }}>
       <View style={styles.account}>
         <View style={styles.row}>
-          <Text style={styles.balance}>{balance()}</Text>
-          <Text style={styles.currency}>€</Text>
+          <Text style={styles.balance}>{balance().toFixed(2)}</Text>
+          <Text style={styles.currency}> {profiles[currentProfile].currency}</Text>
         </View>
         <TouchableOpacity
           style={[
@@ -71,7 +74,7 @@ const Page = () => {
                 {transaction.date.toLocaleString()}
               </Text>
             </View>
-            <Text>{transaction.amount}€</Text>
+            <Text>{transaction.amount}{profiles[currentProfile].currency}</Text>
           </View>
         ))}
       </View>
@@ -80,7 +83,13 @@ const Page = () => {
     </ScrollView>
   );
 };
+
 const styles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    padding: 20,
+  },
   account: {
     margin: 80,
     alignItems: 'center',
@@ -92,7 +101,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   balance: {
-    fontSize: 50,
+    fontSize: 30,
     fontWeight: 'bold',
   },
   currency: {
@@ -120,4 +129,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
 export default Page;

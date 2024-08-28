@@ -27,7 +27,7 @@ const Page = () => {
     <ScrollView
       style={{ backgroundColor: Colors.background }}
       contentContainerStyle={{ paddingTop: headerHeight }}>
-      <Text style={defaultStyles.sectionHeader}>Latest Crypot</Text>
+      <Text style={defaultStyles.sectionHeader}>AZN Stocks</Text>
       <View style={defaultStyles.block}>
         {currencies.data?.map((currency: Currency) => (
           <Link href={`/crypto/${currency.id}`} key={currency.id} asChild>
@@ -38,7 +38,7 @@ const Page = () => {
                 <Text style={{ color: Colors.gray }}>{currency.symbol}</Text>
               </View>
               <View style={{ gap: 6, alignItems: 'flex-end' }}>
-                <Text>{currency.quote.EUR.price.toFixed(2)} €</Text>
+                <Text>{currency.quote.EUR.price.toFixed(2)} AZN</Text>
                 <View style={{ flexDirection: 'row', gap: 4 }}>
                   <Ionicons
                     name={currency.quote.EUR.percent_change_1h > 0 ? 'caret-up' : 'caret-down'}

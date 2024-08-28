@@ -21,13 +21,15 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
 });
+
 interface TileProps {
   id: string;
   onLongPress: () => void;
 }
 
 const Tile = ({ id }: TileProps) => {
-  const { transactions } = useBalanceStore();
+  const { currentProfile, profiles } = useBalanceStore();
+  const transactions = profiles[currentProfile]?.transactions || [];
 
   if (id === 'spent') {
     return (
@@ -113,6 +115,8 @@ const Tile = ({ id }: TileProps) => {
       </View>
     );
   }
+
+  return null;
 };
 
 export default Tile;
